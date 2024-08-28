@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<script src="https://kit.fontawesome.com/1a02557296.js" crossorigin="anonymous"></script>
+<style>
+body {
+    margin:0;
+    padding:0;
+    display:flex;
+    justify-content:center;
+    font-family:Helvetica;
+}
+#container {
+    width:360px;
+}
+#container>div {
+    background-color:#f1f1f1;
+    margin:5px 0%;
+    padding:5px 0%;
+    border-radius:6px;
+    overflow:hidden;
+    height:60px;
+    transition-delay:2s;
+}
+#container>div>div:nth-child(1) {
+    width:100%;
+    height:60px;
+    background-color:#f1f1f1;
+    border-radius:6px;
+    position:relative;
+}
+#container>div>div:nth-child(1)>img {
+    width:50px;
+    position:absolute;
+    top:5px;
+    left:10px;
+    border-radius:6px;
+}
+#container>div>div:nth-child(1)>h4 {
+    position:absolute;
+    top:10px;
+    left:70px;
+    margin:0;
+    padding:0;
+    width:220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#container>div>div:nth-child(1)>p {
+    position:absolute;
+    top:30px;
+    left:70px;
+    margin:0;
+    padding:0;
+    width:220px;
+    color:grey;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size:0.9rem;
+    font-style:italic;
+}
+#container>div>div:nth-child(1)>i {
+    width:50px;
+    height:50px;
+    position:absolute;
+    top:5px;
+    right:10px;
+    border-radius:6px;
+    text-align:center;
+    line-height:50px;
+    background-color:#e2e2e2;
+}
+#container>div>div:nth-child(2) {
+    width:86%;
+    background-color:#e2e2e2;
+    border-radius:6px;
+    margin:5px 2% 0px 2%;
+    text-align:center;
+    padding:10px 5%;
+    font-size:1.6rem;
+}
+#lyr-id {
+   font-size: 0.7rem;
+   padding:2px 4px;
+   border-radius:4px;
+   background: linear-gradient(90deg, blue, violet, purple);
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   background-clip: text;
+   text-fill-color: transparent;
+   font-style: normal;
+   animation:iii 1s infinite linear;
+}
+@keyframes iii {
+    0% {
+   background: linear-gradient(90deg, violet, purple, blue);
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   background-clip: text;
+   text-fill-color: transparent;  
+    }
+    50% {
+   background: linear-gradient(90deg, purple, blue, violet);
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   background-clip: text;
+   text-fill-color: transparent;
+       
+    }
+    100% {
+   background: linear-gradient(90deg, blue, violet, purple);
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   background-clip: text;
+   text-fill-color: transparent;  
+    }
+}
+.highlight {
+    color:red;
+}
+</style>
+</head>
+<body>
+     
+<div id="container">
+
+<% lister.forEach((item, index) => { %>
+ <div onclick="pla(event)">   
+   
+   <div>
+      <img src="<%= item.picture %>" />
+      <h4><%= item.title %></h4>
+      <p>
+        <span id="lyr-id">lyrics</span>
+        <%= item.artist %>
+      </p>
+      <i class="fa-solid fa-play"></i>
+   </div>
+   
+   <div id="lyrics">
+      <div id="current-lyric"></div>
+      <div id="next-lyrics"></div>
+   </div>
+   
+   <audio src="music/<%= item.file %>" preload="none"></audio>  
+   <div style="display:none;"><%= item.lyric %></div>
+   
+ </div>
+ <% }) %>
+</div>
+
+<script>
+
+
+
+function parseLyrics(lyricsStr) {
+  const lines = lyricsStr.trim().split('\n');
+  return lines.map(line => {
+    const timeMatch = line.match(/\[([0-9]{2}):([0-9]{2}\.[0-9]{3})\]/);
+    if (timeMatch) {
+     const minutes = parseInt(timeMatch[1], 10);
+     const seconds = parseFloat(timeMatch[2]);
+     const time = minutes * 60 + seconds;
+     return { time, text: line.replace(timeMatch[0], '').trim() };
+    }
+    return null;
+  }).filter(Boolean);
+}
+
+function pla(event) {
+  var cT = event.currentTarget;
+  var cLD = cT.querySelector('#current-lyric'); 
+  var nLD = cT.querySelector('#next-lyrics');
+  var audio = cT.querySelector('audio');
+  var lyricsString = cT.children[3].innerText;
+  const lyrics = parseLyrics(lyricsString);
+  
+  if(audio.paused) {
+      cT.style.height = "auto";
+      cT.querySelector('i').className = 'fa-solid fa-pause';
+      audio.play();
+   } else {
+      cT.style.height = "60px";
+      cT.querySelector('i').className = 'fa-solid fa-play';
+      audio.pause();
+   }
+
+  audio.addEventListener('timeupdate', () => {
+     const currentTime = audio.currentTime;
+     let currentIndex = 0;
+     for (let i = 0; i < lyrics.length; i++) {
+        if (currentTime >= lyrics[i].time) {
+           currentIndex = i;
+        } else {
+           break;
+        }
+     }
+
+     const endIndex = Math.min(currentIndex + 3, lyrics.length - 1);
+            
+     cLD.innerHTML = `<span class="highlight">${lyrics[currentIndex].text}</span>`;
+            
+     nLD.innerHTML = '';
+     for (let i = currentIndex + 1; i <= endIndex; i++) {
+       nLD.innerHTML += `${lyrics[i].text}<br>`;
+     }
+   });
+}
+
+</script>
+</body>
+</html>

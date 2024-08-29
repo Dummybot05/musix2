@@ -20,4 +20,6 @@ app.get('/', async(req, res) => {
   });
 });
 
-app.listen(PORT, () => { console.log("Started...") })
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server Started`);
+});

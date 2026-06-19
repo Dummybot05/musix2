@@ -1,198 +1,300 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Premium Lyric Player</title>
 <script src="https://kit.fontawesome.com/1a02557296.js" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-body {
-    margin:0;
-    padding:0;
-    display:flex;
-    justify-content:center;
-    font-family:Helvetica;
-}
-#container {
-    width:360px;
-}
-#container>div {
-    background-color:#f1f1f1;
-    margin:5px 0%;
-    padding:5px 0%;
-    border-radius:6px;
-    overflow:hidden;
-    height:60px;
-    transition-delay:2s;
-}
-#container>div>div:nth-child(1) {
-    width:100%;
-    height:60px;
-    background-color:#f1f1f1;
-    border-radius:6px;
-    position:relative;
-}
-#container>div>div:nth-child(1)>img {
-    width:50px;
-    height:50px;
-    position:absolute;
-    top:5px;
-    left:10px;
-    border-radius:6px;
-}
-#container>div>div:nth-child(1)>h4 {
-    position:absolute;
-    top:10px;
-    left:70px;
-    margin:0;
-    padding:0;
-    width:220px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-#container>div>div:nth-child(1)>p {
-    position:absolute;
-    top:30px;
-    left:70px;
-    margin:0;
-    padding:0;
-    width:220px;
-    color:grey;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size:0.9rem;
-    font-style:italic;
-}
-#container>div>div:nth-child(1)>i {
-    width:50px;
-    height:50px;
-    position:absolute;
-    top:5px;
-    right:10px;
-    border-radius:6px;
-    text-align:center;
-    line-height:50px;
-    background-color:#e2e2e2;
-}
-#container>div>div:nth-child(2) {
-    width:86%;
-    background-color:#e2e2e2;
-    border-radius:6px;
-    margin:5px 2% 0px 2%;
-    text-align:center;
-    padding:10px 5%;
-    font-size:1.6rem;
-}
-#lyr-id {
-   font-size: 0.7rem;
-   padding:2px 4px;
-   border-radius:4px;
-   background: linear-gradient(90deg, blue, violet, purple);
-   -webkit-background-clip: text;
-   -webkit-text-fill-color: transparent;
-   background-clip: text;
-   text-fill-color: transparent;
-   font-style: normal;
-   animation:iii 1s infinite linear;
-}
-@keyframes iii {
-    0% {
-   background: linear-gradient(90deg, violet, purple, blue);
-   -webkit-background-clip: text;
-   -webkit-text-fill-color: transparent;
-   background-clip: text;
-   text-fill-color: transparent;  
+    :root {
+        --bg-color: #f0f2f5;
+        --card-bg: #ffffff;
+        --text-main: #1c1e21;
+        --text-muted: #8d949e;
+        --primary: #8b5cf6;
+        --primary-glow: rgba(139, 92, 246, 0.2);
+        --radius: 16px;
+        --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
     }
-    50% {
-   background: linear-gradient(90deg, purple, blue, violet);
-   -webkit-background-clip: text;
-   -webkit-text-fill-color: transparent;
-   background-clip: text;
-   text-fill-color: transparent;
-       
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        padding: 5vh 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        min-height: 100vh;
     }
-    100% {
-   background: linear-gradient(90deg, blue, violet, purple);
-   -webkit-background-clip: text;
-   -webkit-text-fill-color: transparent;
-   background-clip: text;
-   text-fill-color: transparent;  
+
+    #container {
+        width: 100%;
+        max-width: 420px; /* Perfect mobile width, looks great on desktop */
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
-}
-.highlight {
-    color:red;
-}
+
+    /* --- Track Card --- */
+    .track-card {
+        background-color: var(--card-bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        cursor: pointer;
+        max-height: 85px; /* Collapsed height */
+        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s, transform 0.2s;
+        border: 1px solid rgba(0,0,0,0.04);
+        position: relative;
+    }
+
+    .track-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.08);
+    }
+
+    .track-card.playing {
+        max-height: 450px; 
+        border: 1px solid var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-glow);
+    }
+
+    /* --- Header Area --- */
+    .track-header {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        height: 85px;
+    }
+
+    .track-img {
+        width: 55px;
+        height: 55px;
+        border-radius: 10px;
+        object-fit: cover;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        position: relative;
+    }
+
+    .track-info {
+        flex: 1;
+        padding: 0 15px;
+        overflow: hidden;
+    }
+
+    .track-info h4 {
+        margin: 0 0 5px 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .track-info p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Animated Equalizer Icon (Hidden by default, shows when playing) */
+    .eq-icon {
+        display: none;
+        color: var(--primary);
+        font-size: 0.8rem;
+    }
+    .track-card.playing .eq-icon { display: inline-block; }
+
+    /* Play Button */
+    .play-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-main);
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .track-card.playing .play-btn {
+        background-color: var(--primary);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    /* --- Karaoke Lyrics Display --- */
+    .lyrics-container {
+        padding: 20px;
+        height: 365px; /* Fixed height for the expanded state */
+        background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+        border-top: 1px solid #f3f4f6;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Keeps the active lyric roughly in the middle */
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Add a subtle top/bottom fade mask so text visually disappears at the edges */
+    .lyrics-container::before, .lyrics-container::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0;
+        height: 40px;
+        z-index: 2;
+    }
+    .lyrics-container::before {
+        top: 0;
+        background: linear-gradient(180deg, #ffffff 0%, transparent 100%);
+    }
+    .lyrics-container::after {
+        bottom: 0;
+        background: linear-gradient(0deg, #f9fafb 0%, transparent 100%);
+    }
+
+    #lyric-display {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        transition: transform 0.3s ease-out;
+    }
+
+    .lyric-line {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 0 10px;
+    }
+
+    /* The line that just finished */
+    .lyric-past {
+        font-size: 1rem;
+        color: #d1d5db;
+        transform: scale(0.95);
+        opacity: 0.5;
+    }
+
+    /* THE ACTIVE SINGING LINE */
+    .lyric-active {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--primary);
+        transform: scale(1.05);
+        text-shadow: 0 4px 12px var(--primary-glow);
+        padding: 10px 0;
+    }
+
+    /* The upcoming lines */
+    .lyric-future {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #9ca3af;
+    }
+
 </style>
 </head>
 <body>
-     
+      
 <div id="container">
-
-<% lister.forEach((item, index) => { %>
- <div onclick="pla(event)">   
-   
-   <div>
-      <img src="<%= item.picture %>" />
-      <h4><%= item.title %></h4>
-      <p>
-        <span id="lyr-id">lyrics</span>
-        <%= item.artist %>
-      </p>
-      <i class="fa-solid fa-play"></i>
-   </div>
-   
-   <div id="lyrics">
-      <div id="current-lyric"></div>
-      <div id="next-lyrics"></div>
-   </div>
-   
-   <audio src="music/<%= item.file %>" preload="none"></audio>  
-   <div style="display:none;"><%= item.lyric %></div>
-   
- </div>
- <% }) %>
+  <% lister.forEach((item, index) => { %>
+  <div class="track-card" onclick="pla(event)">   
+    
+    <div class="track-header">
+       <img class="track-img" src="<%= item.picture %>" alt="Cover" />
+       <div class="track-info">
+          <h4><%= item.title %></h4>
+          <p>
+            <i class="fa-solid fa-compact-disc eq-icon fa-spin" style="--fa-animation-duration: 3s;"></i>
+            <i class="fa-solid fa-microphone-lines" style="font-size: 0.75rem;"></i>
+            <%= item.artist %>
+          </p>
+       </div>
+       <div class="play-btn">
+           <i class="fa-solid fa-play"></i>
+       </div>
+    </div>
+    
+    <div class="lyrics-container">
+       <div id="lyric-display" class="lyric-view">
+           <div class="lyric-future">Tap play to view lyrics...</div>
+       </div>
+    </div>
+    
+    <audio src="music/<%= item.file %>" preload="none"></audio>  
+    <div class="raw-lyrics" style="display:none;"><%= item.lyric %></div>
+    
+  </div>
+  <% }) %>
 </div>
 
 <script>
-
-
-
 function parseLyrics(lyricsStr) {
   const lines = lyricsStr.trim().split('\n');
   return lines.map(line => {
-    const timeMatch = line.match(/\[([0-9]{2}):([0-9]{2}\.[0-9]{3})\]/);
+    const timeMatch = line.match(/\[([0-9]{2}):([0-9]{2}\.[0-9]{2,3})\]/);
     if (timeMatch) {
      const minutes = parseInt(timeMatch[1], 10);
      const seconds = parseFloat(timeMatch[2]);
      const time = minutes * 60 + seconds;
-     return { time, text: line.replace(timeMatch[0], '').trim() };
+     // Clean up empty lines to prevent awkward gaps
+     const text = line.replace(timeMatch[0], '').trim();
+     if(text === "") return null; 
+     return { time, text };
     }
     return null;
   }).filter(Boolean);
 }
 
 function pla(event) {
-  var cT = event.currentTarget;
-  var cLD = cT.querySelector('#current-lyric'); 
-  var nLD = cT.querySelector('#next-lyrics');
+  // Prevent clicks inside the lyrics container from pausing the song accidentally
+  if (event.target.closest('.lyrics-container')) return;
+
+  var cT = event.target.closest('.track-card');
+  if (!cT) return; 
+
+  var displayArea = cT.querySelector('.lyric-view');
   var audio = cT.querySelector('audio');
-  var lyricsString = cT.children[3].innerText;
+  var icon = cT.querySelector('.play-btn i');
+  var lyricsString = cT.querySelector('.raw-lyrics').innerText;
   const lyrics = parseLyrics(lyricsString);
   
+  // Pause others
+  document.querySelectorAll('.track-card').forEach(card => {
+      if (card !== cT) {
+          card.classList.remove('playing');
+          card.querySelector('.play-btn i').className = 'fa-solid fa-play';
+          card.querySelector('audio').pause();
+      }
+  });
+
   if(audio.paused) {
-      cT.style.height = "auto";
-      cT.querySelector('i').className = 'fa-solid fa-pause';
+      cT.classList.add('playing');
+      icon.className = 'fa-solid fa-pause';
       audio.play();
    } else {
-      cT.style.height = "60px";
-      cT.querySelector('i').className = 'fa-solid fa-play';
+      cT.classList.remove('playing');
+      icon.className = 'fa-solid fa-play';
       audio.pause();
    }
 
   audio.addEventListener('timeupdate', () => {
      const currentTime = audio.currentTime;
-     let currentIndex = 0;
+     let currentIndex = -1;
+     
+     // Find the active lyric line
      for (let i = 0; i < lyrics.length; i++) {
         if (currentTime >= lyrics[i].time) {
            currentIndex = i;
@@ -201,17 +303,29 @@ function pla(event) {
         }
      }
 
-     const endIndex = Math.min(currentIndex + 3, lyrics.length - 1);
-            
-     cLD.innerHTML = `<span class="highlight">${lyrics[currentIndex].text}</span>`;
-            
-     nLD.innerHTML = '';
-     for (let i = currentIndex + 1; i <= endIndex; i++) {
-       nLD.innerHTML += `${lyrics[i].text}<br>`;
+     if (currentIndex !== -1) {
+         let html = '';
+
+         // 1. Show the previous line (faded)
+         if (currentIndex > 0) {
+             html += `<div class="lyric-line lyric-past">${lyrics[currentIndex - 1].text}</div>`;
+         }
+
+         // 2. Show the CURRENT line (large, bold, primary color)
+         html += `<div class="lyric-line lyric-active">${lyrics[currentIndex].text}</div>`;
+
+         // 3. Show the next 3 upcoming lines (fading out)
+         const futureLimit = Math.min(currentIndex + 3, lyrics.length - 1);
+         for (let i = currentIndex + 1; i <= futureLimit; i++) {
+             // Calculate opacity so they fade out the further down they go
+             let opacity = 1 - ((i - currentIndex) * 0.25);
+             html += `<div class="lyric-line lyric-future" style="opacity: ${opacity}">${lyrics[i].text}</div>`;
+         }
+
+         displayArea.innerHTML = html;
      }
    });
 }
-
 </script>
 </body>
 </html>
